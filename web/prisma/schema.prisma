@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---- Auth.js v5 models ----
+
+model User {
+  id              String           @id @default(cuid())
+  name            String?
+  email           String           @unique
+  emailVerified   DateTime?
+  image           String?
+  createdAt       DateTime         @default(now())
+
+  accounts        Account[]
+  sessions        Session[]
+
+  bankAccounts    BankAccount[]
+  transactions    Transaction[]
+  entities        Entity[]
+  budgets         Budget[]
+  alerts          Alert[]
+  recurringPatterns RecurringPattern[]
+  customCategories CustomCategory[]
+}
+
+model Account {
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+  @@id([identifier, token])
+}
+
+// ---- App models ----
+
+// User-managed ledger accounts (Checking, Credit Card, Cash, etc.).
+// Balance = initialBalanceCents + sum(transactions.amountCents).
+model BankAccount {
+  id                  String        @id @default(cuid())
+  userId              String
+  name                String
+  type                String?       // checking | savings | credit | cash
+  currency            String        @default("EUR")
+  initialBalanceCents BigInt        @default(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions        Transaction[]
+}
+
+model Transaction {
+  id                 String        @id @default(cuid())
+  userId             String
+  accountId          String
+  // Content hash of (account, date, amount, description). Prevents re-importing same row.
+  externalId         String
+  amountCents        BigInt        // negative = expense, positive = income
+  currency           String
+  description        String
+  merchant           String?
+  category           String?
+  categoryConfidence Float?
+  postedAt           DateTime
+  pending            Boolean       @default(false)
+  importedAt         DateTime      @default(now())
+
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account            BankAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  splits             Split[]
+
+  @@unique([accountId, externalId])
+  @@index([userId, postedAt])
+}
+
+model Entity {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  kind      String   @default("person")
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participants SplitParticipant[]
+}
+
+model Split {
+  id            String   @id @default(cuid())
+  transactionId String
+  createdAt     DateTime @default(now())
+
+  transaction   Transaction        @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  participants  SplitParticipant[]
+}
+
+model SplitParticipant {
+  id          String   @id @default(cuid())
+  splitId     String
+  entityId    String
+  shareCents  BigInt
+  settled     Boolean  @default(false)
+
+  split       Split    @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model Budget {
+  id                String   @id @default(cuid())
+  userId            String
+  category          String
+  monthlyLimitCents BigInt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, category])
+}
+
+model RecurringPattern {
+  id             String    @id @default(cuid())
+  userId         String
+  merchant       String
+  cadenceDays    Int
+  avgAmountCents BigInt
+  nextExpected   DateTime?
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// User-defined categories that augment the built-in list. The LLM picks from
+// the union of built-ins + these when categorizing the user's transactions.
+model CustomCategory {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, name])
+}
+
+model Alert {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  payload     Json
+  status      String   @default("open")
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

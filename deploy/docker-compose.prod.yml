@@ -1,0 +1,46 @@
+# Production overlay. Usage on the VPS:
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml pull
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d
+#
+# CI sets WEB_IMAGE and API_IMAGE to the SHA-pinned tag of the just-built images
+# so deploys are atomic and rollback-friendly. Falls back to :latest if unset.
+
+services:
+  web:
+    image: ${WEB_IMAGE:-ghcr.io/dkayode/nook/web:latest}
+    build: !reset null      # never build on the VPS — image is pulled from GHCR
+    pull_policy: always
+    ports: !reset []
+    restart: unless-stopped
+
+  api:
+    image: ${API_IMAGE:-ghcr.io/dkayode/nook/api:latest}
+    build: !reset null
+    pull_policy: always
+    ports: !reset []
+    restart: unless-stopped
+
+  db:
+    ports: !reset []        # DB stays internal until you migrate to Neon
+
+  mail:
+    ports: !reset []
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+volumes:
+  caddy_data:
+  caddy_config:
