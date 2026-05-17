@@ -11,3 +11,5 @@ build
 coverage
 pgdata
 .claude/
+CLAUDE.md
+AGENTS.md

@@ -65,6 +65,26 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Verify deploy secrets are set
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DOMAIN: ${{ secrets.DOMAIN }}
+        run: |
+          missing=()
+          [ -z "${SSH_HOST}" ]    && missing+=("SSH_HOST")
+          [ -z "${SSH_USER}" ]    && missing+=("SSH_USER")
+          [ -z "${SSH_KEY}" ]     && missing+=("SSH_KEY")
+          [ -z "${DEPLOY_PATH}" ] && missing+=("DEPLOY_PATH")
+          [ -z "${DOMAIN}" ]      && missing+=("DOMAIN")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing required GitHub secrets: ${missing[*]}"
+            echo "Add them at https://github.com/${{ github.repository }}/settings/secrets/actions"
+            exit 1
+          fi
+
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
