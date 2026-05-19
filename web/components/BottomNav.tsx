@@ -8,6 +8,7 @@ const items = [
   { href: "/transactions", label: "Activity" },
   { href: "/categories", label: "Tags" },
   { href: "/accounts", label: "Accounts" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export function BottomNav() {

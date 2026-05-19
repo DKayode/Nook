@@ -20,6 +20,8 @@ model User {
   accounts        Account[]
   sessions        Session[]
 
+  authenticators  Authenticator[]
+
   bankAccounts    BankAccount[]
   transactions    Transaction[]
   entities        Entity[]
@@ -59,6 +61,23 @@ model VerificationToken {
   token      String
   expires    DateTime
   @@id([identifier, token])
+}
+
+// WebAuthn / Passkey credentials. One row per registered device/biometric per user.
+// A user can have many — Mac, iPhone, work laptop, etc. — all linked to the same account.
+// Magic-link sign-in remains the fallback path when none are usable on the current device.
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
 }
 
 // ---- App models ----
