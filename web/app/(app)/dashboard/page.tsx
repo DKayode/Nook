@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { callApi } from "@/lib/apiClient";
 import { DailySpendChart } from "@/components/DailySpendChart";
-import { CategoryBreakdown } from "@/components/CategoryBreakdown";
+import { CategoryPieChart } from "@/components/CategoryPieChart";
 import { InOutSummary } from "@/components/InOutSummary";
 import { DateRangePicker } from "@/components/DateRangePicker";
 import { MonthlyComparison } from "@/components/MonthlyComparison";
@@ -186,7 +186,7 @@ export default async function Dashboard({
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DailySpendChart days={days} currency={currency} label={rangeLabel} />
-        <CategoryBreakdown rows={categoryRows} currency={currency} />
+        <CategoryPieChart rows={categoryRows} currency={currency} />
       </div>
 
       <MonthlyComparison months={monthlyData} currency={currency} />
