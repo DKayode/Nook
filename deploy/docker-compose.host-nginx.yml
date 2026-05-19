@@ -11,7 +11,7 @@
 #
 # The host nginx site config (k4yod3/nginx/sites-available/nook.k4yod3.com.conf)
 # proxies to 127.0.0.1:3001, so we bind web's container port 3000 to loopback:3001.
-# Everything else (db, mail, api) stays internal to the compose network.
+# Everything else (mail, api) stays internal to the compose network. DB is on Neon.
 
 services:
   web:
@@ -28,9 +28,6 @@ services:
     pull_policy: always
     ports: !reset []
     restart: unless-stopped
-
-  db:
-    ports: !reset []
 
   mail:
     ports: !reset []

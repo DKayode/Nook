@@ -1,21 +1,4 @@
 services:
-  db:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   mail:
     image: axllent/mailpit:latest
     restart: unless-stopped
@@ -38,15 +21,13 @@ services:
       API_INTERNAL_TOKEN: ${API_INTERNAL_TOKEN}
     ports:
       - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
 
   web:
     image: ${WEB_IMAGE:-ghcr.io/dkayode/nook/web:latest}
     build: ./web
     restart: unless-stopped
     environment:
+      # Postgres lives on Neon — DATABASE_URL is the full connection string with sslmode=require.
       DATABASE_URL: ${DATABASE_URL}
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       AUTH_URL: ${NEXTAUTH_URL}
@@ -60,7 +41,5 @@ services:
     ports:
       - "3001:3000"
     depends_on:
-      db:
-        condition: service_healthy
       api:
         condition: service_started
