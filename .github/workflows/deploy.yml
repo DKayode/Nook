@@ -93,6 +93,19 @@ jobs:
       - name: Trust VPS host key
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      # No git on the VPS — we only ship the compose files. Images are pulled from GHCR.
+      # Which overlay to use is configurable: set repo variable COMPOSE_OVERLAY (e.g. to
+      # `docker-compose.host-nginx.yml` for host-nginx TLS), defaults to the Caddy overlay.
+      - name: Upload compose files to VPS
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" "mkdir -p '$DEPLOY_PATH/deploy'"
+          scp docker-compose.yml "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/docker-compose.yml"
+          scp -r deploy/.        "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/deploy/"
+
       - name: Pull images & restart on VPS
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
@@ -101,39 +114,27 @@ jobs:
           SHA: ${{ github.sha }}
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OVERLAY: ${{ vars.COMPOSE_OVERLAY || 'docker-compose.prod.yml' }}
         run: |
           ssh "$SSH_USER@$SSH_HOST" bash -se <<EOF
             set -euo pipefail
-            REPO_URL="https://github.com/DKayode/Nook.git"
-            DEPLOY_PATH="$DEPLOY_PATH"
-            SHA="$SHA"
+            cd '$DEPLOY_PATH'
 
-            # First-run bootstrap: clone if not present. Subsequent runs just fetch+reset.
-            if [ ! -d "\$DEPLOY_PATH/.git" ]; then
-              mkdir -p "\$(dirname "\$DEPLOY_PATH")"
-              git clone "\$REPO_URL" "\$DEPLOY_PATH"
-            fi
-            cd "\$DEPLOY_PATH"
-            git fetch --all --prune
-            git reset --hard "\$SHA"
-
-            # .env must exist (never committed)
             if [ ! -f .env ]; then
-              echo "ERROR: .env is missing at \$DEPLOY_PATH" >&2
+              echo "ERROR: .env missing at \$PWD" >&2
+              exit 1
+            fi
+            if [ ! -f 'deploy/$OVERLAY' ]; then
+              echo "ERROR: deploy/$OVERLAY not on VPS — was it committed and uploaded?" >&2
               exit 1
             fi
 
-            # Login to GHCR so we can pull the just-built images. Token is short-lived but
-            # valid for this deploy run; cached credentials live in ~/.docker/config.json.
-            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USER' --password-stdin
 
-            # Pin to the exact images built in the matching CI run, not :latest, so
-            # concurrent deploys can't race each other.
-            export WEB_IMAGE="ghcr.io/dkayode/nook/web:\$SHA"
-            export API_IMAGE="ghcr.io/dkayode/nook/api:\$SHA"
+            export WEB_IMAGE='ghcr.io/dkayode/nook/web:$SHA'
+            export API_IMAGE='ghcr.io/dkayode/nook/api:$SHA'
 
-            COMPOSE="docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml"
-
+            COMPOSE="docker compose -f docker-compose.yml -f deploy/$OVERLAY"
             \$COMPOSE pull web api
             \$COMPOSE up -d --remove-orphans
             \$COMPOSE exec -T web npx prisma db push --skip-generate
