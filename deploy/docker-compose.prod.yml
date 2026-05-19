@@ -1,17 +1,20 @@
-# Production overlay. Usage on the VPS:
+# Production overlay. TLS is terminated by host-installed nginx (see DKayode/k4yod3 repo).
+# Usage on the VPS:
 #   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml pull
 #   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d
 #
-# CI sets WEB_IMAGE and API_IMAGE to the SHA-pinned tag of the just-built images
-# so deploys are atomic and rollback-friendly. Falls back to :latest if unset.
+# The host nginx site config proxies to 127.0.0.1:3001, so we bind web's container
+# port 3000 to loopback:3001. Everything else (mail, api) stays internal to the
+# compose network. Postgres lives on Neon — set DATABASE_URL accordingly in .env.
 
 services:
   web:
     image: ${WEB_IMAGE:-ghcr.io/dkayode/nook/web:latest}
-    build: !reset null      # never build on the VPS — image is pulled from GHCR
+    build: !reset null
     pull_policy: always
-    ports: !reset []
     restart: unless-stopped
+    ports: !override
+      - "127.0.0.1:3001:3000"
 
   api:
     image: ${API_IMAGE:-ghcr.io/dkayode/nook/api:latest}
@@ -22,22 +25,3 @@ services:
 
   mail:
     ports: !reset []
-
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      DOMAIN: ${DOMAIN}
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - web
-
-volumes:
-  caddy_data:
-  caddy_config:

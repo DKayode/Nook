@@ -93,9 +93,7 @@ jobs:
       - name: Trust VPS host key
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      # No git on the VPS — we only ship the compose files. Images are pulled from GHCR.
-      # Which overlay to use is configurable: set repo variable COMPOSE_OVERLAY (e.g. to
-      # `docker-compose.host-nginx.yml` for host-nginx TLS), defaults to the Caddy overlay.
+      # No git on the VPS — ship the compose files via scp, pull images from GHCR.
       - name: Upload compose files to VPS
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
@@ -103,8 +101,8 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           ssh "$SSH_USER@$SSH_HOST" "mkdir -p '$DEPLOY_PATH/deploy'"
-          scp docker-compose.yml "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/docker-compose.yml"
-          scp -r deploy/.        "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/deploy/"
+          scp docker-compose.yml             "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/docker-compose.yml"
+          scp deploy/docker-compose.prod.yml "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/deploy/docker-compose.prod.yml"
 
       - name: Pull images & restart on VPS
         env:
@@ -114,7 +112,6 @@ jobs:
           SHA: ${{ github.sha }}
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OVERLAY: ${{ vars.COMPOSE_OVERLAY || 'docker-compose.prod.yml' }}
         run: |
           ssh "$SSH_USER@$SSH_HOST" bash -se <<EOF
             set -euo pipefail
@@ -124,17 +121,13 @@ jobs:
               echo "ERROR: .env missing at \$PWD" >&2
               exit 1
             fi
-            if [ ! -f 'deploy/$OVERLAY' ]; then
-              echo "ERROR: deploy/$OVERLAY not on VPS — was it committed and uploaded?" >&2
-              exit 1
-            fi
 
             echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USER' --password-stdin
 
             export WEB_IMAGE='ghcr.io/dkayode/nook/web:$SHA'
             export API_IMAGE='ghcr.io/dkayode/nook/api:$SHA'
 
-            COMPOSE="docker compose -f docker-compose.yml -f deploy/$OVERLAY"
+            COMPOSE="docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml"
             \$COMPOSE pull web api
             \$COMPOSE up -d --remove-orphans
             \$COMPOSE exec -T web npx prisma db push --skip-generate
