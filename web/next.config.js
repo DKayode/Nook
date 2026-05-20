@@ -1,24 +1,37 @@
 const withPWA = require("@ducanh2912/next-pwa").default({
   dest: "public",
-  // Disable in dev AND when running against localhost — SW cache turns every iteration
-  // into a "did the new code ship?" mystery. Real HTTPS deploys still get it.
+  // Disable in dev and against localhost — SW cache turns every iteration into a
+  // "did the new code ship?" mystery. Real HTTPS deploys still get it.
   disable:
     process.env.NODE_ENV === "development" ||
     (process.env.NEXTAUTH_URL ?? "").includes("localhost"),
   register: true,
   workboxOptions: {
+    // skipWaiting + clientsClaim + cleanupOutdatedCaches together = each deploy's
+    // new SW takes over immediately for open tabs and wipes the old cache, so users
+    // don't get stuck on a stale dashboard after we ship new components.
     skipWaiting: true,
-    // Auth + bank API calls must hit the network every time. The PWA SW caching 4xx or
-    // bouncing methods would silently break sign-in, sync, callbacks, etc.
-    navigateFallbackDenylist: [/^\/api\//],
+    clientsClaim: true,
+    cleanupOutdatedCaches: true,
+    navigateFallbackDenylist: [/^\/api\//, /^\/sign-in/, /^\/verify-request/],
     runtimeCaching: [
+      // Auth + bank/api callbacks must hit the network every time. Caching 4xx or
+      // bouncing methods would silently break sign-in, sync, callbacks, etc.
+      { urlPattern: /^\/api\/auth\/.*/, handler: "NetworkOnly" },
+      { urlPattern: /^\/api\/.*/, handler: "NetworkOnly" },
+
+      // App pages (anything HTML the user navigates to) — fetch fresh while online,
+      // fall back to cache only when offline. Short maxAge so even cached copies don't
+      // outlive the next deploy long.
       {
-        urlPattern: /^\/api\/auth\/.*/,
-        handler: "NetworkOnly",
-      },
-      {
-        urlPattern: /^\/api\/.*/,
-        handler: "NetworkOnly",
+        urlPattern: ({ request, url }) =>
+          request.mode === "navigate" && !url.pathname.startsWith("/api"),
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "nook-pages-v2",
+          networkTimeoutSeconds: 4,
+          expiration: { maxEntries: 32, maxAgeSeconds: 60 * 60 },
+        },
       },
     ],
   },
