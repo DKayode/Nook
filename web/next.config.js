@@ -7,30 +7,41 @@ const withPWA = require("@ducanh2912/next-pwa").default({
     (process.env.NEXTAUTH_URL ?? "").includes("localhost"),
   register: true,
   workboxOptions: {
-    // skipWaiting + clientsClaim + cleanupOutdatedCaches together = each deploy's
-    // new SW takes over immediately for open tabs and wipes the old cache, so users
-    // don't get stuck on a stale dashboard after we ship new components.
     skipWaiting: true,
     clientsClaim: true,
     cleanupOutdatedCaches: true,
     navigateFallbackDenylist: [/^\/api\//, /^\/sign-in/, /^\/verify-request/],
     runtimeCaching: [
-      // Auth + bank/api callbacks must hit the network every time. Caching 4xx or
-      // bouncing methods would silently break sign-in, sync, callbacks, etc.
+      // API calls — never cache. Sign-in callbacks, CSV imports, etc.
       { urlPattern: /^\/api\/auth\/.*/, handler: "NetworkOnly" },
       { urlPattern: /^\/api\/.*/, handler: "NetworkOnly" },
 
-      // App pages (anything HTML the user navigates to) — fetch fresh while online,
-      // fall back to cache only when offline. Short maxAge so even cached copies don't
-      // outlive the next deploy long.
+      // App HTML pages — NetworkOnly so a new component (pie chart, etc.) is visible
+      // immediately after deploy. Trade-off: no offline page fallback. Acceptable for
+      // a self-hosted expense tracker that needs the network for everything anyway.
       {
         urlPattern: ({ request, url }) =>
           request.mode === "navigate" && !url.pathname.startsWith("/api"),
-        handler: "NetworkFirst",
+        handler: "NetworkOnly",
+      },
+
+      // Static chunks have content-hashed URLs — safe to cache forever.
+      {
+        urlPattern: /^.*\/_next\/static\/.*/,
+        handler: "CacheFirst",
         options: {
-          cacheName: "nook-pages-v2",
-          networkTimeoutSeconds: 4,
-          expiration: { maxEntries: 32, maxAgeSeconds: 60 * 60 },
+          cacheName: "nook-next-static",
+          expiration: { maxEntries: 64, maxAgeSeconds: 7 * 24 * 60 * 60 },
+        },
+      },
+
+      // Icons / images.
+      {
+        urlPattern: /^.*\/icons\/.*\.(png|svg)$/,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "nook-icons",
+          expiration: { maxEntries: 16, maxAgeSeconds: 30 * 24 * 60 * 60 },
         },
       },
     ],
