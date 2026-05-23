@@ -2,7 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
+@layer base {
+  /* Dark is the default theme. Removing `.dark` from <html> flips to light. */
+  :root {
+    --bg: 252 251 247;       /* sand */
+    --surface: 245 243 233;
+    --surface-2: 235 231 210;
+    --ink: 14 26 27;
+    --muted: 94 122 124;
+    --accent: 197 168 128;    /* gold */
+    --border: 220 213 181;
+    color-scheme: light;
+  }
+  .dark {
+    --bg: 26 43 44;           /* forest */
+    --surface: 31 53 54;
+    --surface-2: 14 26 27;
+    --ink: 252 251 247;        /* sand */
+    --muted: 134 155 157;
+    --accent: 197 168 128;
+    --border: 31 53 54;
+    color-scheme: dark;
+  }
+}
 
 html, body { height: 100%; }
-body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; }
+body {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+}

@@ -1,5 +1,19 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import { Comfortaa, Inter } from "next/font/google";
+
+const comfortaa = Comfortaa({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-comfortaa",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Nook",
@@ -22,7 +36,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0b0f",
+  themeColor: "#1a2b2c",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -30,8 +44,18 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-bg text-white antialiased">{children}</body>
+    <html lang="en" className={`${comfortaa.variable} ${inter.variable} dark`} suppressHydrationWarning>
+      <head>
+        {/* Pre-paint theme application — avoids the dark-then-light flash on first load. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('nook-theme');if(t==='light'){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}}catch(_){}})();`,
+          }}
+        />
+      </head>
+      <body className="min-h-screen bg-bg text-ink antialiased">
+        {children}
+      </body>
     </html>
   );
 }
