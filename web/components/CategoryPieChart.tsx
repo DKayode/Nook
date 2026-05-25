@@ -1,20 +1,37 @@
-// Server-only SVG donut. Monochrome segments (white → gray → dark gray) with the top
-// spending category lifted out in the dashboard accent (Emerald #10B981). Slices are
-// separated by hairline #000 strokes so neighbours stay readable against the dark canvas.
+// Server-only SVG donut. The pie is the one place the strict B&W rule relaxes — slices
+// pull from a vivid categorical palette so categories are immediately distinguishable
+// against the black dashboard. Top spender is lifted out in Emerald (the dashboard's
+// established accent). Uncategorized + Other are pinned to gray so the fallback buckets
+// never look "highlighted". Hairline #000 strokes between slices keep neighbours readable.
 
 type Slice = { category: string; spendCents: number };
 
 const EMERALD = "#10B981";
 const SLICE_BORDER = "#000000";
+const UNCATEGORIZED_COLOR = "#525252";
+const OTHER_COLOR = "#262626";
 
-// Five-step grayscale ramp from white to dark gray. Slices cycle deterministically by
-// hash so a given category always lands on the same shade across renders.
-const MONO_SHADES = ["#f5f5f5", "#d4d4d4", "#a3a3a3", "#737373", "#525252", "#404040"];
+// Vivid categorical palette tuned for a black canvas. Order is intentional — frequently
+// co-occurring categories should land on visually distinct neighbours, so I avoid putting
+// blues next to blues.
+const PALETTE = [
+  "#38BDF8", // sky
+  "#F59E0B", // amber
+  "#8B5CF6", // violet
+  "#F43F5E", // rose
+  "#22D3EE", // cyan
+  "#FB923C", // orange
+  "#84CC16", // lime
+  "#E879F9", // fuchsia
+  "#6366F1", // indigo
+  "#FACC15", // yellow
+];
 
-function monoShadeFor(category: string): string {
+function colorFor(category: string): string {
+  if (category === "Uncategorized") return UNCATEGORIZED_COLOR;
   let hash = 0;
   for (let i = 0; i < category.length; i++) hash = (hash * 31 + category.charCodeAt(i)) | 0;
-  return MONO_SHADES[Math.abs(hash) % MONO_SHADES.length];
+  return PALETTE[Math.abs(hash) % PALETTE.length];
 }
 
 export function CategoryPieChart({ rows, currency }: { rows: Slice[]; currency: string }) {
@@ -28,18 +45,20 @@ export function CategoryPieChart({ rows, currency }: { rows: Slice[]; currency: 
     );
   }
 
-  // Top 7 + "Other" so the donut stays readable. The top slice gets the emerald accent.
+  // Top 7 + "Other" so the donut stays readable. The biggest non-fallback category gets
+  // the Emerald accent; Uncategorized stays gray even when it's #1 so the highlight always
+  // lands on a real spending bucket.
   const sorted = [...rows].sort((a, b) => b.spendCents - a.spendCents);
   const TOP = 7;
   const top = sorted.slice(0, TOP);
   const tailSum = sorted.slice(TOP).reduce((s, r) => s + r.spendCents, 0);
-  const topCategory = sorted[0]?.category;
+  const topCategory = sorted.find((s) => s.category !== "Uncategorized")?.category;
   const slices: (Slice & { color: string })[] = [
     ...top.map((s) => ({
       ...s,
-      color: s.category === topCategory ? EMERALD : monoShadeFor(s.category),
+      color: s.category === topCategory ? EMERALD : colorFor(s.category),
     })),
-    ...(tailSum > 0 ? [{ category: "Other", spendCents: tailSum, color: "#262626" }] : []),
+    ...(tailSum > 0 ? [{ category: "Other", spendCents: tailSum, color: OTHER_COLOR }] : []),
   ];
 
   let cum = 0;
@@ -87,7 +106,10 @@ export function CategoryPieChart({ rows, currency }: { rows: Slice[]; currency: 
                   className="size-2.5 shrink-0 rounded-sm border border-bg"
                   style={{ backgroundColor: a.color }}
                 />
-                <span className={`flex-1 truncate ${isTop ? "font-semibold text-accent" : "text-ink"}`}>
+                <span
+                  className={`flex-1 truncate ${isTop ? "font-semibold" : ""}`}
+                  style={{ color: a.color }}
+                >
                   {a.category}
                 </span>
                 <span className={`tabular-nums ${isTop ? "text-accent" : "text-muted"}`}>
