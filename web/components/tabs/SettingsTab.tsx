@@ -69,9 +69,6 @@ export function SettingsTab({ data }: { data: SettingsTabData }) {
         <div className="text-sm font-medium">Profile & syncing</div>
         <ul className="mt-3 space-y-2 text-sm">
           <Row href="/devices" label="Devices" hint="Manage passkeys per device" />
-          <Row href="/accounts" label="Accounts" hint="Edit balances and currency" />
-          <Row href="/categories" label="Categories" hint="Add, rename, remove custom tags" />
-          <Row href="/import" label="Import CSV" hint="Add transactions from a bank export" />
         </ul>
       </section>
 
