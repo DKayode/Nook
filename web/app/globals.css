@@ -3,25 +3,26 @@
 @tailwind utilities;
 
 @layer base {
-  /* Dark is the default theme. Removing `.dark` from <html> flips to light. */
+  /* Monochrome palette. Light = white bg / black ink. Dark = black bg / white ink.
+     Accent is the inverse of ink so primary actions read as solid black/white blocks. */
   :root {
-    --bg: 252 251 247;       /* sand */
-    --surface: 245 243 233;
-    --surface-2: 235 231 210;
-    --ink: 14 26 27;
-    --muted: 94 122 124;
-    --accent: 197 168 128;    /* gold */
-    --border: 220 213 181;
+    --bg: 255 255 255;
+    --surface: 245 245 245;
+    --surface-2: 229 229 229;
+    --ink: 10 10 10;
+    --muted: 115 115 115;
+    --accent: 10 10 10;
+    --border: 229 229 229;
     color-scheme: light;
   }
   .dark {
-    --bg: 26 43 44;           /* forest */
-    --surface: 31 53 54;
-    --surface-2: 14 26 27;
-    --ink: 252 251 247;        /* sand */
-    --muted: 134 155 157;
-    --accent: 197 168 128;
-    --border: 31 53 54;
+    --bg: 10 10 10;
+    --surface: 23 23 23;
+    --surface-2: 38 38 38;
+    --ink: 245 245 245;
+    --muted: 163 163 163;
+    --accent: 245 245 245;
+    --border: 38 38 38;
     color-scheme: dark;
   }
 }

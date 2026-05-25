@@ -5,7 +5,8 @@ import type { TabKey } from "@/components/AppShell";
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "home", label: "Home", icon: <HomeIcon /> },
   { key: "analytics", label: "Analytics", icon: <ChartIcon /> },
-  { key: "add", label: "Add", icon: <PlusIcon /> },
+  { key: "add", label: "Add category", icon: <PlusIcon /> },
+  { key: "budget", label: "Budget", icon: <WalletIcon /> },
   { key: "settings", label: "Settings", icon: <CogIcon /> },
 ];
 
@@ -19,10 +20,10 @@ export function MobileBottomNav({
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-forest-700/60 bg-bg/95 backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/95 backdrop-blur"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="mx-auto grid max-w-md grid-cols-4 gap-1 px-3 pb-2 pt-2">
+      <ul className="mx-auto grid max-w-md grid-cols-5 gap-1 px-3 pb-2 pt-2">
         {TABS.map((t) => {
           const isActive = t.key === active;
           const isAddTab = t.key === "add";
@@ -33,32 +34,31 @@ export function MobileBottomNav({
                 onClick={() => onChange(t.key)}
                 aria-current={isActive ? "page" : undefined}
                 aria-label={t.label}
-                className={
-                  isAddTab
-                    ? "flex w-full flex-col items-center justify-center gap-0.5"
-                    : "flex w-full flex-col items-center justify-center gap-0.5"
-                }
+                title={t.label}
+                className="flex w-full flex-col items-center justify-center gap-0.5"
               >
                 <span
                   className={
                     isAddTab
-                      ? `flex size-12 -translate-y-3 items-center justify-center rounded-full shadow-soft transition ${
-                          isActive ? "bg-gold text-forest" : "bg-gold text-forest hover:scale-105"
+                      ? `flex size-12 -translate-y-3 items-center justify-center rounded-full bg-ink text-bg shadow-soft transition ${
+                          isActive ? "" : "hover:scale-105"
                         }`
                       : `flex size-10 items-center justify-center rounded-2xl transition ${
-                          isActive ? "bg-gold/20 text-gold" : "text-muted"
+                          isActive ? "bg-surface text-ink" : "text-muted"
                         }`
                   }
                 >
                   {t.icon}
                 </span>
-                <span
-                  className={`text-[10px] font-medium uppercase tracking-wide ${
-                    isAddTab ? "-mt-2" : ""
-                  } ${isActive && !isAddTab ? "text-gold" : "text-muted"}`}
-                >
-                  {t.label}
-                </span>
+                {!isAddTab && (
+                  <span
+                    className={`text-[10px] font-medium uppercase tracking-wide ${
+                      isActive ? "text-ink" : "text-muted"
+                    }`}
+                  >
+                    {t.label}
+                  </span>
+                )}
               </button>
             </li>
           );
@@ -87,6 +87,15 @@ function PlusIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="size-6">
       <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+    </svg>
+  );
+}
+function WalletIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-5">
+      <path d="M3 7a2 2 0 0 1 2-2h12.5A1.5 1.5 0 0 1 19 6.5V8" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <circle cx="16.5" cy="13.5" r="1.25" />
     </svg>
   );
 }

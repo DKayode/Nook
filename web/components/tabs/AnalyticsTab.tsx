@@ -8,7 +8,6 @@ export type Window = "1m" | "3m" | "1y";
 
 export type AnalyticsTabData = {
   currency: string;
-  // For each window, pre-aggregated category spend + a trend series.
   windows: Record<
     Window,
     {
@@ -29,15 +28,13 @@ export function AnalyticsTab({ data }: { data: AnalyticsTabData }) {
   const [active, setActive] = useState<Window>("1m");
   const w = data.windows[active];
 
-  // Memoize so re-renders on toggle don't recompute pie chart slice colors.
   const categories = useMemo(() => w.categories, [w]);
 
   return (
     <div className="animate-fade-in space-y-4">
-      {/* Filter pills */}
       <div className="flex items-center justify-between">
         <h2 className="font-display text-lg font-semibold">Analytics</h2>
-        <div role="tablist" className="inline-flex rounded-full bg-surface p-1">
+        <div role="tablist" className="inline-flex rounded-full bg-surface p-1 ring-1 ring-border">
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -46,7 +43,7 @@ export function AnalyticsTab({ data }: { data: AnalyticsTabData }) {
               onClick={() => setActive(f.key)}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 active === f.key
-                  ? "bg-gold text-forest shadow-sm"
+                  ? "bg-ink text-bg shadow-sm"
                   : "text-muted hover:text-ink"
               }`}
             >
@@ -56,10 +53,8 @@ export function AnalyticsTab({ data }: { data: AnalyticsTabData }) {
         </div>
       </div>
 
-      {/* Pie */}
       <CategoryPieChart rows={categories} currency={data.currency} />
 
-      {/* Trend area chart */}
       <section className="rounded-3xl bg-surface p-5 shadow-soft">
         <div className="flex items-baseline justify-between">
           <div>
@@ -74,7 +69,7 @@ export function AnalyticsTab({ data }: { data: AnalyticsTabData }) {
               }).format(w.totalCents / 100)}
             </div>
           </div>
-          <span className="text-[10px] uppercase tracking-wide text-gold">
+          <span className="text-[10px] uppercase tracking-wide text-muted">
             {FILTERS.find((f) => f.key === active)?.label}
           </span>
         </div>

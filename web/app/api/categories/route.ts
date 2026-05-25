@@ -7,6 +7,7 @@ export const runtime = "nodejs";
 
 const Body = z.object({
   name: z.string().trim().min(1).max(40),
+  icon: z.string().trim().min(1).max(8).optional().nullable(),
 });
 
 export async function POST(req: Request) {
@@ -18,7 +19,11 @@ export async function POST(req: Request) {
 
   try {
     const cat = await prisma.customCategory.create({
-      data: { userId: session.user.id, name: parsed.data.name },
+      data: {
+        userId: session.user.id,
+        name: parsed.data.name,
+        icon: parsed.data.icon || null,
+      },
     });
     return NextResponse.json({ category: cat }, { status: 201 });
   } catch (e: unknown) {

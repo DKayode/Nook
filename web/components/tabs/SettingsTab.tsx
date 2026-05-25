@@ -62,7 +62,7 @@ export function SettingsTab({ data }: { data: SettingsTabData }) {
           type="button"
           onClick={exportJson}
           disabled={exporting}
-          className="mt-3 w-full rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-medium text-gold transition hover:bg-gold/20 disabled:opacity-60"
+          className="mt-3 w-full rounded-xl border border-border bg-bg px-4 py-3 text-sm font-medium text-ink transition hover:bg-surface-2 disabled:opacity-60"
         >
           {exporting ? "Preparing…" : "Download JSON"}
         </button>
@@ -80,7 +80,6 @@ export function SettingsTab({ data }: { data: SettingsTabData }) {
 
       <form
         action={async () => {
-          // server action posted from a client component — calls the Auth.js signOut server fn
           const res = await fetch("/api/auth/signout", { method: "POST" });
           if (res.ok) window.location.assign("/sign-in");
         }}

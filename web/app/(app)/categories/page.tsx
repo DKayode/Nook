@@ -2,6 +2,10 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { CategoryForm } from "@/components/CategoryForm";
 import { DeleteCategoryButton } from "@/components/DeleteCategoryButton";
+import {
+  BUILTIN_CATEGORY_ICONS,
+  DEFAULT_CATEGORY_ICON,
+} from "@/lib/categoryIcons";
 
 // Mirror of the ALLOWED list in api/app/categorize.py — kept here only for display.
 const BUILTIN = ["Income", "Food", "Transport", "Bills", "Shopping", "Uncategorized"];
@@ -34,7 +38,12 @@ export default async function CategoriesPage() {
           <ul className="space-y-2">
             {custom.map((c) => (
               <li key={c.id} className="flex items-center justify-between rounded-xl bg-surface px-4 py-3">
-                <span>{c.name}</span>
+                <span className="flex items-center gap-2">
+                  <span className="text-lg" aria-hidden="true">
+                    {c.icon ?? DEFAULT_CATEGORY_ICON}
+                  </span>
+                  <span>{c.name}</span>
+                </span>
                 <DeleteCategoryButton id={c.id} />
               </li>
             ))}
@@ -46,8 +55,12 @@ export default async function CategoriesPage() {
         <div className="mb-2 text-xs uppercase tracking-wide text-muted">Built-in</div>
         <ul className="flex flex-wrap gap-2">
           {BUILTIN.map((c) => (
-            <li key={c} className="rounded-full bg-surface px-3 py-1 text-xs text-muted">
-              {c}
+            <li
+              key={c}
+              className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs text-muted ring-1 ring-border"
+            >
+              <span aria-hidden="true">{BUILTIN_CATEGORY_ICONS[c] ?? DEFAULT_CATEGORY_ICON}</span>
+              <span>{c}</span>
             </li>
           ))}
         </ul>

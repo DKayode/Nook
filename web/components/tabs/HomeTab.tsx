@@ -1,9 +1,13 @@
 import Link from "next/link";
+import {
+  BUILTIN_CATEGORY_ICONS,
+  DEFAULT_CATEGORY_ICON,
+} from "@/lib/categoryIcons";
 
 export type HomeTabData = {
   currency: string;
-  realBalanceCents: number;     // initial + all transactions
-  sharedBalanceCents: number;   // sum of obligations user owes to others (placeholder 0 today)
+  realBalanceCents: number;
+  sharedBalanceCents: number;
   incomeCents: number;
   expenseCents: number;
   recent: Array<{
@@ -20,8 +24,8 @@ export function HomeTab({ data }: { data: HomeTabData }) {
   return (
     <div className="animate-fade-in space-y-4">
       {/* Adjusted balance — the headline figure */}
-      <section className="rounded-3xl bg-forest-700 p-6 text-sand shadow-soft dark:bg-forest-700">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-gold/80">Adjusted balance</div>
+      <section className="rounded-3xl bg-ink p-6 text-bg shadow-soft">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-bg/70">Adjusted balance</div>
         <div className="mt-2 font-display text-4xl font-semibold">{format(adjusted, data.currency)}</div>
         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
           <Pair label="Real" value={format(data.realBalanceCents, data.currency)} />
@@ -49,38 +53,49 @@ export function HomeTab({ data }: { data: HomeTabData }) {
       <section className="overflow-hidden rounded-3xl bg-surface shadow-soft">
         <div className="flex items-center justify-between px-5 py-4">
           <div className="font-display text-base font-semibold">Recent transactions</div>
-          <Link href="/transactions" className="text-xs font-medium text-gold hover:underline">
+          <Link href="/transactions" className="text-xs font-medium text-ink hover:underline">
             View all →
           </Link>
         </div>
-        <ul className="divide-y divide-forest-200 dark:divide-forest-700/60">
+        <ul className="divide-y divide-border">
           {data.recent.length === 0 && (
             <li className="px-5 py-8 text-center text-sm text-muted">
               No transactions yet. Import a CSV to get started.
             </li>
           )}
-          {data.recent.map((t) => (
-            <li key={t.id} className="flex items-center justify-between gap-3 px-5 py-3">
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium">{t.description}</div>
-                <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
-                  <span>{new Date(t.postedAt).toLocaleDateString()}</span>
-                  {t.category && (
-                    <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gold">
-                      {t.category}
-                    </span>
-                  )}
+          {data.recent.map((t) => {
+            const icon = t.category
+              ? BUILTIN_CATEGORY_ICONS[t.category] ?? DEFAULT_CATEGORY_ICON
+              : BUILTIN_CATEGORY_ICONS.Uncategorized;
+            return (
+              <li key={t.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-bg text-base ring-1 ring-border"
+                  aria-hidden="true"
+                >
+                  {icon}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{t.description}</div>
+                  <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
+                    <span>{new Date(t.postedAt).toLocaleDateString()}</span>
+                    {t.category && (
+                      <span className="rounded-full bg-bg px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted ring-1 ring-border">
+                        {t.category}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <span
-                className={`shrink-0 font-display text-sm font-semibold tabular-nums ${
-                  t.amountCents < 0 ? "" : "text-emerald-500 dark:text-emerald-400"
-                }`}
-              >
-                {format(t.amountCents, data.currency)}
-              </span>
-            </li>
-          ))}
+                <span
+                  className={`shrink-0 font-display text-sm font-semibold tabular-nums ${
+                    t.amountCents < 0 ? "" : "text-emerald-600 dark:text-emerald-400"
+                  }`}
+                >
+                  {format(t.amountCents, data.currency)}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </section>
     </div>
@@ -89,8 +104,8 @@ export function HomeTab({ data }: { data: HomeTabData }) {
 
 function Pair({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-forest-800/60 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wide text-sand/60">{label}</div>
+    <div className="rounded-xl bg-bg/10 px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wide text-bg/60">{label}</div>
       <div className="mt-0.5 font-medium tabular-nums">{value}</div>
     </div>
   );
@@ -116,8 +131,8 @@ function Counter({
         <span
           className={`flex size-7 items-center justify-center rounded-full ${
             tone === "up"
-              ? "bg-emerald-500/15 text-emerald-500 dark:bg-emerald-400/15 dark:text-emerald-400"
-              : "bg-gold/20 text-gold"
+              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+              : "bg-ink/10 text-ink"
           }`}
         >
           {tone === "up" ? "↗" : "↙"}

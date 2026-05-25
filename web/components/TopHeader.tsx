@@ -3,24 +3,39 @@
 import Link from "next/link";
 
 type Props = {
+  userName: string | null;
   userEmail: string | null;
   notificationCount: number;
 };
 
-export function TopHeader({ userEmail, notificationCount }: Props) {
-  const initial = (userEmail ?? "?").trim()[0]?.toUpperCase() ?? "?";
+function firstNameOf(name: string | null, email: string | null): string {
+  if (name && name.trim()) return name.trim().split(/\s+/)[0];
+  if (email) return email.split("@")[0];
+  return "Guest";
+}
+
+function acronymOf(name: string | null, fallback: string): string {
+  const source = name && name.trim() ? name.trim() : fallback;
+  const parts = source.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source[0]?.toUpperCase() ?? "?";
+}
+
+export function TopHeader({ userName, userEmail, notificationCount }: Props) {
+  const first = firstNameOf(userName, userEmail);
+  const initials = acronymOf(userName, first);
   return (
-    <header className="sticky top-0 z-40 grid grid-cols-3 items-center border-b border-forest-700/60 bg-bg/95 px-4 py-3 backdrop-blur ">
+    <header className="sticky top-0 z-40 grid grid-cols-3 items-center border-b border-border bg-bg/95 px-4 py-3 backdrop-blur">
       <div className="flex justify-start">
         <Link
           href="/accounts"
           aria-label="Profile and accounts"
-          className="flex items-center gap-2 rounded-full bg-gold/15 px-2 py-1.5 text-sm text-ink ring-1 ring-gold/30 transition hover:bg-gold/25"
+          className="flex items-center gap-2 rounded-full bg-surface px-2 py-1.5 text-sm text-ink ring-1 ring-border transition hover:bg-surface-2"
         >
-          <span className="flex size-7 items-center justify-center rounded-full bg-gold font-medium text-forest">
-            {initial}
+          <span className="flex size-7 items-center justify-center rounded-full bg-ink font-medium text-bg">
+            {initials}
           </span>
-          <span className="max-w-[8rem] truncate font-medium">{userEmail ?? "Guest"}</span>
+          <span className="max-w-[8rem] truncate font-medium">{first}</span>
         </Link>
       </div>
 
@@ -34,11 +49,11 @@ export function TopHeader({ userEmail, notificationCount }: Props) {
         <Link
           href="/?tab=home&filter=uncategorized"
           aria-label={`${notificationCount} item${notificationCount === 1 ? "" : "s"} need attention`}
-          className="relative flex size-9 items-center justify-center rounded-full bg-gold/15 text-ink ring-1 ring-gold/30 transition hover:bg-gold/25"
+          className="relative flex size-9 items-center justify-center rounded-full bg-surface text-ink ring-1 ring-border transition hover:bg-surface-2"
         >
           <BellIcon />
           {notificationCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-forest">
+            <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-ink px-1 text-[10px] font-bold text-bg">
               {notificationCount > 99 ? "99+" : notificationCount}
             </span>
           )}

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { AppShell, type ShellData, type TabKey } from "@/components/AppShell";
+import type { BudgetRow } from "@/components/tabs/BudgetTab";
 
 const BUILTIN_CATEGORIES = ["Income", "Food", "Transport", "Bills", "Shopping", "Uncategorized"];
 
@@ -15,9 +16,9 @@ export default async function HomePage({ searchParams }: { searchParams: { tab?:
   const threeMonthsStart = startOfMonthsAgo(now, 2);
   const oneYearStart = startOfMonthsAgo(now, 11);
 
-  const [user, accounts, txnSums, recent, yearTxns, customCategories, txnCount, uncatCount] =
+  const [user, accounts, txnSums, recent, yearTxns, customCategories, txnCount, uncatCount, budgets] =
     await Promise.all([
-      prisma.user.findUnique({ where: { id: userId }, select: { email: true } }),
+      prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } }),
       prisma.bankAccount.findMany({ where: { userId } }),
       prisma.transaction.groupBy({
         by: ["accountId"],
@@ -43,12 +44,16 @@ export default async function HomePage({ searchParams }: { searchParams: { tab?:
       }),
       prisma.customCategory.findMany({
         where: { userId },
-        select: { id: true, name: true },
+        select: { id: true, name: true, icon: true },
         orderBy: { createdAt: "desc" },
       }),
       prisma.transaction.count({ where: { userId } }),
       prisma.transaction.count({
         where: { userId, OR: [{ category: null }, { category: "Uncategorized" }] },
+      }),
+      prisma.budget.findMany({
+        where: { userId },
+        select: { category: true, monthlyLimitCents: true },
       }),
     ]);
 
@@ -63,11 +68,18 @@ export default async function HomePage({ searchParams }: { searchParams: { tab?:
   // Home tab: current-month income / expense totals.
   let incomeCents = 0;
   let expenseCents = 0;
+  const monthSpendByCategory = new Map<string, number>();
   for (const t of yearTxns) {
     if (t.postedAt < monthStart) continue;
     const amt = Number(t.amountCents);
-    if (amt >= 0) incomeCents += amt;
-    else expenseCents += -amt;
+    if (amt >= 0) {
+      incomeCents += amt;
+    } else {
+      const spend = -amt;
+      expenseCents += spend;
+      const cat = t.category ?? "Uncategorized";
+      monthSpendByCategory.set(cat, (monthSpendByCategory.get(cat) ?? 0) + spend);
+    }
   }
 
   // Analytics tab: (categories, trend) per window.
@@ -90,7 +102,34 @@ export default async function HomePage({ searchParams }: { searchParams: { tab?:
     };
   }
 
+  // Budget tab: union of every spendable category (built-ins + customs + anything with a budget)
+  // alongside current-month spend and the budget cap if one exists.
+  const customIconByName = new Map(customCategories.map((c) => [c.name, c.icon] as const));
+  const limitByCategory = new Map(
+    budgets.map((b) => [b.category, Number(b.monthlyLimitCents)] as const),
+  );
+  const budgetCategoryNames = new Set<string>([
+    ...BUILTIN_CATEGORIES.filter((c) => c !== "Income"),
+    ...customCategories.map((c) => c.name),
+    ...budgets.map((b) => b.category),
+  ]);
+  const budgetRows: BudgetRow[] = Array.from(budgetCategoryNames)
+    .map((category) => ({
+      category,
+      icon: customIconByName.get(category) ?? null,
+      monthlyLimitCents: limitByCategory.has(category) ? limitByCategory.get(category)! : null,
+      monthSpendCents: monthSpendByCategory.get(category) ?? 0,
+    }))
+    .sort((a, b) => {
+      // Categories with a cap first (most relevant), then by current-month spend desc.
+      const aHas = a.monthlyLimitCents != null ? 1 : 0;
+      const bHas = b.monthlyLimitCents != null ? 1 : 0;
+      if (aHas !== bHas) return bHas - aHas;
+      return b.monthSpendCents - a.monthSpendCents;
+    });
+
   const shellData: ShellData = {
+    userName: user?.name ?? session.user.name ?? null,
     userEmail: user?.email ?? session.user.email ?? null,
     notificationCount: uncatCount,
     home: {
@@ -116,6 +155,7 @@ export default async function HomePage({ searchParams }: { searchParams: { tab?:
       },
     },
     add: { customCategories, builtInCategories: BUILTIN_CATEGORIES },
+    budget: { currency, rows: budgetRows },
     settings: {
       email: user?.email ?? null,
       accountCount: accounts.length,
@@ -124,7 +164,7 @@ export default async function HomePage({ searchParams }: { searchParams: { tab?:
     },
   };
 
-  const validTabs: TabKey[] = ["home", "analytics", "add", "settings"];
+  const validTabs: TabKey[] = ["home", "analytics", "add", "budget", "settings"];
   const initialTab = validTabs.includes(searchParams.tab as TabKey)
     ? (searchParams.tab as TabKey)
     : "home";

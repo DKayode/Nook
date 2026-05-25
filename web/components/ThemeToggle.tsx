@@ -31,12 +31,12 @@ export function ThemeToggle() {
       <div>
         <div className="text-sm font-medium">Dark mode</div>
         <div className="text-xs text-muted">
-          {isDark ? "Forest theme — easy on the eyes at night" : "Sand theme — bright daylight"}
+          {isDark ? "Dark theme — easy on the eyes at night" : "Light theme — bright daylight"}
         </div>
       </div>
       <span
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-          isDark ? "bg-gold" : "bg-forest-200"
+          isDark ? "bg-ink" : "bg-surface-2"
         }`}
       >
         <span

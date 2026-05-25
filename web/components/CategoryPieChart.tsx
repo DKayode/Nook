@@ -5,20 +5,20 @@
 type Slice = { category: string; spendCents: number };
 
 const PALETTE = [
-  "#7c5cff", // accent purple
-  "#22d3ee", // cyan
-  "#a78bfa", // violet
-  "#fb7185", // rose
-  "#34d399", // emerald
-  "#fbbf24", // amber
-  "#60a5fa", // blue
-  "#c084fc", // purple-light
-  "#f43f5e", // pink-deep
-  "#10b981", // green
+  "#0a0a0a",
+  "#262626",
+  "#404040",
+  "#525252",
+  "#737373",
+  "#a3a3a3",
+  "#bfbfbf",
+  "#d4d4d4",
+  "#e5e5e5",
+  "#f5f5f5",
 ];
 
 function colorFor(category: string): string {
-  if (category === "Uncategorized") return "#f59e0b"; // amber, matches the rest of the UI
+  if (category === "Uncategorized") return "#a3a3a3";
   let hash = 0;
   for (let i = 0; i < category.length; i++) hash = (hash * 31 + category.charCodeAt(i)) | 0;
   return PALETTE[Math.abs(hash) % PALETTE.length];
@@ -66,7 +66,7 @@ export function CategoryPieChart({ rows, currency }: { rows: Slice[]; currency: 
               <title>{`${a.category}: ${format(a.spendCents, currency)} (${Math.round((a.spendCents / total) * 100)}%)`}</title>
             </path>
           ))}
-          <text x={cx} y={cy} textAnchor="middle" className="fill-white" fontSize="14" fontWeight="600" dy="-2">
+          <text x={cx} y={cy} textAnchor="middle" className="fill-ink" fontSize="14" fontWeight="600" dy="-2">
             {format(total, currency)}
           </text>
           <text x={cx} y={cy} textAnchor="middle" className="fill-muted" fontSize="9" dy="14">

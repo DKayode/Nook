@@ -1,13 +1,12 @@
 import type { Config } from "tailwindcss";
 
-// Design tokens
-//   Forest Green #1a2b2c   primary surface (dark)
-//   Sand Beige   #fcfbf7   primary surface (light)
-//   Gold         #c5a880   accent
+// Design tokens — monochrome (Black / White)
 //
-// Semantic tokens (bg / surface / ink / muted / accent) are CSS variables defined in
-// globals.css and flipped by the `.dark` class on <html>. Brand scales (forest / sand /
-// gold) are also available when a component wants an explicit shade.
+// Semantic tokens (bg / surface / ink / muted / accent / border) are CSS variables defined in
+// globals.css and flipped by the `.dark` class on <html>. The `mono` scale is the raw
+// black→white ramp components can reach into when an explicit shade is needed.
+// Brand aliases (forest / sand / gold) are preserved and mapped onto the mono ramp so the
+// rest of the app keeps working without a sweeping rename.
 
 export default {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
@@ -24,39 +23,54 @@ export default {
         accent: "rgb(var(--accent) / <alpha-value>)",
         border: "rgb(var(--border) / <alpha-value>)",
 
-        // Brand scales — explicit
+        mono: {
+          DEFAULT: "#000000",
+          50: "#ffffff",
+          100: "#f5f5f5",
+          200: "#e5e5e5",
+          300: "#d4d4d4",
+          400: "#a3a3a3",
+          500: "#737373",
+          600: "#525252",
+          700: "#262626",
+          800: "#171717",
+          900: "#0a0a0a",
+          950: "#000000",
+        },
+
+        // Brand aliases mapped onto the monochrome ramp so existing class names still resolve.
         forest: {
-          DEFAULT: "#1a2b2c",
-          50: "#f1f4f4",
-          100: "#dde4e4",
-          200: "#b5c3c4",
-          300: "#869b9d",
-          400: "#5e7a7c",
-          500: "#3e5c5e",
-          600: "#2c4546",
-          700: "#1f3536",
-          800: "#1a2b2c",
-          900: "#0e1a1b",
-          950: "#070d0d",
+          DEFAULT: "#0a0a0a",
+          50: "#f5f5f5",
+          100: "#e5e5e5",
+          200: "#d4d4d4",
+          300: "#a3a3a3",
+          400: "#737373",
+          500: "#525252",
+          600: "#262626",
+          700: "#171717",
+          800: "#0a0a0a",
+          900: "#000000",
+          950: "#000000",
         },
         sand: {
-          DEFAULT: "#fcfbf7",
-          50: "#fcfbf7",
-          100: "#f5f3e9",
-          200: "#ebe7d2",
-          300: "#dcd5b5",
-          400: "#c9be93",
-          500: "#b7a978",
+          DEFAULT: "#ffffff",
+          50: "#ffffff",
+          100: "#f5f5f5",
+          200: "#e5e5e5",
+          300: "#d4d4d4",
+          400: "#a3a3a3",
+          500: "#737373",
         },
         gold: {
-          DEFAULT: "#c5a880",
-          50: "#fbf6ec",
-          100: "#f4e9cf",
-          200: "#e8d2a3",
-          300: "#dabb78",
-          400: "#c5a880",
-          500: "#b08f60",
-          600: "#946f4d",
+          DEFAULT: "#0a0a0a",
+          50: "#f5f5f5",
+          100: "#e5e5e5",
+          200: "#d4d4d4",
+          300: "#a3a3a3",
+          400: "#262626",
+          500: "#171717",
+          600: "#0a0a0a",
         },
       },
       fontFamily: {
