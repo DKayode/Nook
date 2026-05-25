@@ -27,14 +27,13 @@ const FILTERS: { key: Window; label: string }[] = [
 export function AnalyticsTab({ data }: { data: AnalyticsTabData }) {
   const [active, setActive] = useState<Window>("1m");
   const w = data.windows[active];
-
   const categories = useMemo(() => w.categories, [w]);
 
   return (
     <div className="animate-fade-in space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="font-display text-lg font-semibold">Analytics</h2>
-        <div role="tablist" className="inline-flex rounded-full bg-surface p-1 ring-1 ring-border">
+        <div role="tablist" className="inline-flex rounded-full border border-border p-1">
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -43,7 +42,7 @@ export function AnalyticsTab({ data }: { data: AnalyticsTabData }) {
               onClick={() => setActive(f.key)}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 active === f.key
-                  ? "bg-ink text-bg shadow-sm"
+                  ? "bg-ink text-bg"
                   : "text-muted hover:text-ink"
               }`}
             >
@@ -55,13 +54,13 @@ export function AnalyticsTab({ data }: { data: AnalyticsTabData }) {
 
       <CategoryPieChart rows={categories} currency={data.currency} />
 
-      <section className="rounded-3xl bg-surface p-5 shadow-soft">
+      <section className="rounded-2xl border border-border bg-bg p-5">
         <div className="flex items-baseline justify-between">
           <div>
             <div className="text-xs uppercase tracking-wide text-muted">
               Spending trend
             </div>
-            <div className="mt-1 font-display text-2xl font-semibold tabular-nums">
+            <div className="mt-1 font-display text-2xl font-semibold tabular-nums text-accent">
               {new Intl.NumberFormat(undefined, {
                 style: "currency",
                 currency: data.currency,

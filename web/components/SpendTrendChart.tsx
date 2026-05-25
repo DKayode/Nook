@@ -1,6 +1,9 @@
-// Server-only SVG area chart. No JS shipped. Each point is one bucket (day/week/month).
+// Server-only SVG area chart. Bold emerald (#10B981) trend line + matching gradient fill,
+// rendered over the dashboard's black canvas. No JS shipped.
 
 type Point = { label: string; valueCents: number };
+
+const EMERALD = "#10B981";
 
 export function SpendTrendChart({
   points,
@@ -43,14 +46,21 @@ export function SpendTrendChart({
     >
       <defs>
         <linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#c5a880" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#c5a880" stopOpacity="0" />
+          <stop offset="0%" stopColor={EMERALD} stopOpacity="0.45" />
+          <stop offset="100%" stopColor={EMERALD} stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={areaPath} fill="url(#trend-fill)" />
-      <path d={linePath} stroke="#c5a880" strokeWidth="2" fill="none" strokeLinejoin="round" strokeLinecap="round" />
+      <path
+        d={linePath}
+        stroke={EMERALD}
+        strokeWidth="2.5"
+        fill="none"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
       {coords.map((c) => (
-        <circle key={c.label} cx={c.x} cy={c.y} r="2.5" fill="#c5a880">
+        <circle key={c.label} cx={c.x} cy={c.y} r="2.5" fill={EMERALD}>
           <title>{`${c.label}: ${format(c.valueCents, currency)}`}</title>
         </circle>
       ))}

@@ -42,13 +42,13 @@ export function AccountForm() {
         placeholder="Account name (Checking, Visa, …)"
         maxLength={80}
         required
-        className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 outline-none focus:border-accent"
+        className="w-full rounded-2xl border border-border bg-bg px-4 py-3 text-ink outline-none focus:border-ink"
       />
       <div className="grid grid-cols-2 gap-2">
         <select
           value={type}
           onChange={(e) => setType(e.target.value as (typeof TYPES)[number])}
-          className="rounded-xl border border-white/10 bg-surface px-4 py-3 outline-none focus:border-accent"
+          className="rounded-2xl border border-border bg-bg px-4 py-3 text-ink outline-none focus:border-ink"
         >
           {TYPES.map((t) => (
             <option key={t} value={t}>{t}</option>
@@ -59,7 +59,7 @@ export function AccountForm() {
           onChange={(e) => setCurrency(e.target.value)}
           maxLength={3}
           placeholder="EUR"
-          className="rounded-xl border border-white/10 bg-surface px-4 py-3 outline-none focus:border-accent"
+          className="rounded-2xl border border-border bg-bg px-4 py-3 text-ink outline-none focus:border-ink"
         />
       </div>
       <input
@@ -67,16 +67,16 @@ export function AccountForm() {
         value={initialBalance}
         onChange={(e) => setInitialBalance(e.target.value)}
         placeholder="Opening balance (e.g. 1250.00)"
-        className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 outline-none focus:border-accent"
+        className="w-full rounded-2xl border border-border bg-bg px-4 py-3 text-ink outline-none focus:border-ink"
       />
       <button
         type="submit"
         disabled={busy || !name.trim()}
-        className="w-full rounded-xl bg-accent px-4 py-3 font-medium text-white disabled:opacity-60"
+        className="w-full rounded-2xl border border-ink bg-ink px-4 py-3 font-medium text-bg disabled:opacity-60"
       >
         {busy ? "Adding…" : "Add account"}
       </button>
-      {err && <div className="text-sm text-red-300">{err}</div>}
+      {err && <div className="text-sm text-ink">{err}</div>}
     </form>
   );
 }

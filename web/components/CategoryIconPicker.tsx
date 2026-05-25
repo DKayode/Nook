@@ -21,10 +21,10 @@ export function CategoryIconPicker({ value, onChange }: Props) {
               onClick={() => onChange(g)}
               aria-pressed={selected}
               aria-label={`Pick ${g}`}
-              className={`flex aspect-square items-center justify-center rounded-lg text-lg transition ${
+              className={`flex aspect-square items-center justify-center rounded-2xl text-lg transition ${
                 selected
-                  ? "bg-ink text-bg ring-2 ring-ink"
-                  : "bg-surface ring-1 ring-border hover:bg-surface-2"
+                  ? "border-2 border-ink bg-surface text-ink"
+                  : "border border-border bg-bg hover:bg-surface"
               }`}
             >
               <span>{g}</span>

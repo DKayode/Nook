@@ -13,16 +13,18 @@ export default async function ImportPage() {
   });
 
   return (
-    <main className="px-5 pt-12 lg:pt-0">
-      <h1 className="text-2xl font-semibold">Import CSV</h1>
-      <p className="mt-1 text-sm text-muted">
-        Drop any bank&apos;s CSV — comma, semicolon, or tab delimited. We&apos;ll auto-detect the columns;
-        you can correct any of them before importing.
-      </p>
+    <main className="animate-fade-in space-y-5">
+      <header>
+        <h1 className="font-display text-2xl font-semibold">Import CSV</h1>
+        <p className="mt-1 text-sm text-muted">
+          Drop any bank&apos;s CSV — comma, semicolon, or tab delimited. We&apos;ll auto-detect the
+          columns; you can correct any of them before importing.
+        </p>
+      </header>
 
-      <div className="mt-6">
+      <section className="rounded-2xl border border-border bg-bg p-5">
         <CsvImporter accounts={accounts} />
-      </div>
+      </section>
     </main>
   );
 }

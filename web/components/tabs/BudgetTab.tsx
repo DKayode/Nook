@@ -10,8 +10,8 @@ import {
 export type BudgetRow = {
   category: string;
   icon: string | null;
-  monthlyLimitCents: number | null;   // null = no budget set
-  monthSpendCents: number;            // positive, this calendar month
+  monthlyLimitCents: number | null;
+  monthSpendCents: number;
 };
 
 export type BudgetTabData = {
@@ -32,11 +32,11 @@ export function BudgetTab({ data }: { data: BudgetTabData }) {
         </p>
       </header>
 
-      <section className="rounded-3xl bg-surface p-5 shadow-soft">
+      <section className="rounded-3xl border border-border-2 bg-bg p-5">
         <div className="flex items-baseline justify-between">
           <div>
             <div className="text-xs uppercase tracking-wide text-muted">This month</div>
-            <div className="mt-1 font-display text-2xl font-semibold tabular-nums">
+            <div className="mt-1 font-display text-2xl font-semibold tabular-nums text-accent">
               {fmt(totalSpend, data.currency)}
               <span className="ml-2 text-sm font-normal text-muted">
                 of {totalLimit > 0 ? fmt(totalLimit, data.currency) : "—"}
@@ -96,7 +96,7 @@ function BudgetRowItem({ row, currency }: { row: BudgetRow; currency: string }) 
   const over = limit > 0 && row.monthSpendCents > limit;
 
   return (
-    <li className="rounded-2xl bg-surface p-4 shadow-soft">
+    <li className="rounded-2xl border border-border bg-bg p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <span className="text-lg" aria-hidden="true">{icon}</span>
@@ -119,7 +119,7 @@ function BudgetRowItem({ row, currency }: { row: BudgetRow; currency: string }) 
               step="1"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              className="w-20 rounded-lg border border-border bg-bg px-2 py-1 text-right text-sm tabular-nums outline-none focus:border-ink"
+              className="w-20 rounded-2xl border border-border bg-bg px-2 py-1 text-right text-sm tabular-nums text-ink outline-none focus:border-ink"
               placeholder="0"
               autoFocus
             />
@@ -127,7 +127,7 @@ function BudgetRowItem({ row, currency }: { row: BudgetRow; currency: string }) 
               type="button"
               disabled={busy}
               onClick={save}
-              className="rounded-lg bg-ink px-2 py-1 text-xs font-medium text-bg disabled:opacity-60"
+              className="rounded-2xl border border-ink bg-ink px-2 py-1 text-xs font-medium text-bg disabled:opacity-60"
             >
               Save
             </button>
@@ -136,7 +136,7 @@ function BudgetRowItem({ row, currency }: { row: BudgetRow; currency: string }) 
                 type="button"
                 disabled={busy}
                 onClick={clear}
-                className="rounded-lg bg-surface-2 px-2 py-1 text-xs text-muted disabled:opacity-60"
+                className="rounded-2xl border border-border bg-bg px-2 py-1 text-xs text-muted disabled:opacity-60"
               >
                 Clear
               </button>
@@ -145,9 +145,9 @@ function BudgetRowItem({ row, currency }: { row: BudgetRow; currency: string }) 
         )}
       </div>
 
-      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-bg ring-1 ring-border">
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full border border-border">
         <div
-          className={`h-full transition-[width] ${over ? "bg-red-500" : "bg-ink"}`}
+          className={`h-full transition-[width] ${over ? "bg-ink" : "bg-accent"}`}
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -158,7 +158,11 @@ function BudgetRowItem({ row, currency }: { row: BudgetRow; currency: string }) 
           {row.monthlyLimitCents != null
             ? `${fmt(row.monthlyLimitCents, currency)} cap`
             : "no cap"}
-          {over && <span className="ml-1 text-red-500">· over</span>}
+          {over && (
+            <span className="ml-1 rounded-sm border border-ink px-1 text-[10px] font-bold uppercase text-ink">
+              over
+            </span>
+          )}
         </span>
       </div>
     </li>
@@ -167,14 +171,20 @@ function BudgetRowItem({ row, currency }: { row: BudgetRow; currency: string }) 
 
 function Pct({ spent, limit }: { spent: number; limit: number }) {
   if (limit <= 0) {
-    return <span className="rounded-full bg-bg px-2 py-1 text-[10px] uppercase text-muted ring-1 ring-border">no cap</span>;
+    return (
+      <span className="rounded-full border border-border px-2 py-1 text-[10px] uppercase text-muted">
+        no cap
+      </span>
+    );
   }
   const pct = Math.round((spent / limit) * 100);
   const over = spent > limit;
   return (
     <span
       className={`rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-wide ${
-        over ? "bg-red-500/10 text-red-500 ring-1 ring-red-500/30" : "bg-ink text-bg"
+        over
+          ? "border border-ink bg-ink text-bg"
+          : "border border-accent text-accent"
       }`}
     >
       {pct}%

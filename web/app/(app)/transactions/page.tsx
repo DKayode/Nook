@@ -56,43 +56,41 @@ export default async function TransactionsPage({
   }
 
   return (
-    <main className="pt-12 lg:pt-0">
-      <div className="px-5">
-        <h1 className="text-2xl font-semibold">Activity</h1>
+    <main className="animate-fade-in space-y-4">
+      <header>
+        <h1 className="font-display text-2xl font-semibold">Activity</h1>
         <form className="mt-4">
           <input
             name="q"
             defaultValue={q}
             placeholder="Search merchant or description"
-            className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 outline-none focus:border-accent"
+            className="w-full rounded-2xl border border-border bg-bg px-4 py-3 text-ink outline-none focus:border-ink"
           />
         </form>
 
         <div className="mt-3 flex gap-2 text-xs">
           <Link
             href="/transactions"
-            className={`rounded-full px-3 py-1 ${!onlyUncat ? "bg-accent text-white" : "bg-surface text-muted"}`}
+            className={`rounded-full border px-3 py-1 ${
+              !onlyUncat ? "border-ink bg-ink text-bg" : "border-border bg-bg text-muted"
+            }`}
           >
             All
           </Link>
           <Link
             href="/transactions?only=uncategorized"
-            className={`rounded-full px-3 py-1 ${
-              onlyUncat
-                ? "bg-amber-500/20 text-amber-300"
-                : uncatCount > 0
-                ? "bg-amber-500/10 text-amber-300"
-                : "bg-surface text-muted"
+            className={`rounded-full border px-3 py-1 ${
+              onlyUncat ? "border-ink bg-ink text-bg" : "border-border bg-bg text-muted"
             }`}
           >
             Uncategorized{uncatCount > 0 && ` · ${uncatCount}`}
           </Link>
         </div>
-      </div>
+      </header>
 
-      <div className="mt-4">
+      <section className="overflow-hidden rounded-2xl border border-border bg-bg">
         {txns.length === 0 && (
-          <div className="px-5 py-10 text-center text-sm text-muted">
+          <div className="py-10 text-center text-sm text-muted">
             {onlyUncat ? "All categorized." : "No transactions yet."}
           </div>
         )}
@@ -108,7 +106,7 @@ export default async function TransactionsPage({
             categories={categories}
           />
         ))}
-      </div>
+      </section>
     </main>
   );
 }

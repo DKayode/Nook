@@ -1,51 +1,47 @@
-// Server-only SVG donut. No JS shipped.
-// Slices are sized proportionally to spend; colors are deterministic per category name so
-// "Food" is always the same color across renders.
+// Server-only SVG donut. Monochrome segments (white → gray → dark gray) with the top
+// spending category lifted out in the dashboard accent (Emerald #10B981). Slices are
+// separated by hairline #000 strokes so neighbours stay readable against the dark canvas.
 
 type Slice = { category: string; spendCents: number };
 
-const PALETTE = [
-  "#0a0a0a",
-  "#262626",
-  "#404040",
-  "#525252",
-  "#737373",
-  "#a3a3a3",
-  "#bfbfbf",
-  "#d4d4d4",
-  "#e5e5e5",
-  "#f5f5f5",
-];
+const EMERALD = "#10B981";
+const SLICE_BORDER = "#000000";
 
-function colorFor(category: string): string {
-  if (category === "Uncategorized") return "#a3a3a3";
+// Five-step grayscale ramp from white to dark gray. Slices cycle deterministically by
+// hash so a given category always lands on the same shade across renders.
+const MONO_SHADES = ["#f5f5f5", "#d4d4d4", "#a3a3a3", "#737373", "#525252", "#404040"];
+
+function monoShadeFor(category: string): string {
   let hash = 0;
   for (let i = 0; i < category.length; i++) hash = (hash * 31 + category.charCodeAt(i)) | 0;
-  return PALETTE[Math.abs(hash) % PALETTE.length];
+  return MONO_SHADES[Math.abs(hash) % MONO_SHADES.length];
 }
 
 export function CategoryPieChart({ rows, currency }: { rows: Slice[]; currency: string }) {
   const total = rows.reduce((s, r) => s + r.spendCents, 0);
   if (total === 0) {
     return (
-      <div className="rounded-2xl bg-surface p-4">
+      <div className="rounded-2xl border border-border bg-bg p-4">
         <div className="text-xs uppercase tracking-wide text-muted">By category</div>
         <div className="mt-3 text-sm text-muted">No spending in this period.</div>
       </div>
     );
   }
 
-  // Top 7 + "Other" so the donut stays readable.
+  // Top 7 + "Other" so the donut stays readable. The top slice gets the emerald accent.
   const sorted = [...rows].sort((a, b) => b.spendCents - a.spendCents);
   const TOP = 7;
   const top = sorted.slice(0, TOP);
   const tailSum = sorted.slice(TOP).reduce((s, r) => s + r.spendCents, 0);
+  const topCategory = sorted[0]?.category;
   const slices: (Slice & { color: string })[] = [
-    ...top.map((s) => ({ ...s, color: colorFor(s.category) })),
-    ...(tailSum > 0 ? [{ category: "Other", spendCents: tailSum, color: "#52525b" }] : []),
+    ...top.map((s) => ({
+      ...s,
+      color: s.category === topCategory ? EMERALD : monoShadeFor(s.category),
+    })),
+    ...(tailSum > 0 ? [{ category: "Other", spendCents: tailSum, color: "#262626" }] : []),
   ];
 
-  // Render donut: walk slices, accumulating angles starting from the top (-90°), clockwise.
   let cum = 0;
   const cx = 100, cy = 100, ro = 90, ri = 55;
   const arcs = slices.map((s) => {
@@ -56,13 +52,20 @@ export function CategoryPieChart({ rows, currency }: { rows: Slice[]; currency: 
   });
 
   return (
-    <div className="rounded-2xl bg-surface p-4">
+    <div className="rounded-2xl border border-border bg-bg p-4">
       <div className="text-xs uppercase tracking-wide text-muted">By category</div>
 
       <div className="mt-3 flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-5">
         <svg viewBox="0 0 200 200" className="h-44 w-44 shrink-0" aria-label="Spending by category">
           {arcs.map((a) => (
-            <path key={a.category} d={a.d} fill={a.color}>
+            <path
+              key={a.category}
+              d={a.d}
+              fill={a.color}
+              stroke={SLICE_BORDER}
+              strokeWidth="1"
+              strokeLinejoin="round"
+            >
               <title>{`${a.category}: ${format(a.spendCents, currency)} (${Math.round((a.spendCents / total) * 100)}%)`}</title>
             </path>
           ))}
@@ -77,11 +80,17 @@ export function CategoryPieChart({ rows, currency }: { rows: Slice[]; currency: 
         <ul className="w-full flex-1 space-y-1.5">
           {arcs.map((a) => {
             const pct = (a.spendCents / total) * 100;
+            const isTop = a.category === topCategory;
             return (
               <li key={a.category} className="flex items-center gap-2 text-xs">
-                <span className="size-2.5 shrink-0 rounded-sm" style={{ backgroundColor: a.color }} />
-                <span className="flex-1 truncate">{a.category}</span>
-                <span className="tabular-nums text-muted">
+                <span
+                  className="size-2.5 shrink-0 rounded-sm border border-bg"
+                  style={{ backgroundColor: a.color }}
+                />
+                <span className={`flex-1 truncate ${isTop ? "font-semibold text-accent" : "text-ink"}`}>
+                  {a.category}
+                </span>
+                <span className={`tabular-nums ${isTop ? "text-accent" : "text-muted"}`}>
                   {format(a.spendCents, currency)} · {pct.toFixed(0)}%
                 </span>
               </li>
@@ -93,7 +102,6 @@ export function CategoryPieChart({ rows, currency }: { rows: Slice[]; currency: 
   );
 }
 
-// SVG donut slice path. startDeg/endDeg are clockwise from the top (12 o'clock).
 function describeDonutSlice(cx: number, cy: number, ro: number, ri: number, startDeg: number, endDeg: number): string {
   // Full-circle edge case — a slice covering 360° won't render via Arc commands.
   if (Math.abs(endDeg - startDeg) >= 359.999) {

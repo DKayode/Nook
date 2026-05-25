@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export type SettingsTabData = {
   email: string | null;
@@ -38,7 +37,7 @@ export function SettingsTab({ data }: { data: SettingsTabData }) {
         <h2 className="font-display text-2xl font-semibold">Settings</h2>
       </header>
 
-      <section className="rounded-3xl bg-surface p-5 shadow-soft">
+      <section className="rounded-2xl border border-border bg-bg p-5">
         <div className="text-xs uppercase tracking-wide text-muted">
           Signed in as
         </div>
@@ -50,9 +49,7 @@ export function SettingsTab({ data }: { data: SettingsTabData }) {
         </dl>
       </section>
 
-      <ThemeToggle />
-
-      <section className="rounded-3xl bg-surface p-5 shadow-soft">
+      <section className="rounded-2xl border border-border bg-bg p-5">
         <div className="text-sm font-medium">Export a backup</div>
         <p className="mt-1 text-xs text-muted">
           Downloads a JSON snapshot of every account, transaction, custom category, and split.
@@ -62,13 +59,13 @@ export function SettingsTab({ data }: { data: SettingsTabData }) {
           type="button"
           onClick={exportJson}
           disabled={exporting}
-          className="mt-3 w-full rounded-xl border border-border bg-bg px-4 py-3 text-sm font-medium text-ink transition hover:bg-surface-2 disabled:opacity-60"
+          className="mt-3 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-60"
         >
           {exporting ? "Preparing…" : "Download JSON"}
         </button>
       </section>
 
-      <section className="rounded-3xl bg-surface p-5 shadow-soft">
+      <section className="rounded-2xl border border-border bg-bg p-5">
         <div className="text-sm font-medium">Profile & syncing</div>
         <ul className="mt-3 space-y-2 text-sm">
           <Row href="/devices" label="Devices" hint="Manage passkeys per device" />
@@ -86,7 +83,7 @@ export function SettingsTab({ data }: { data: SettingsTabData }) {
       >
         <button
           type="submit"
-          className="w-full rounded-2xl bg-red-500/10 px-4 py-3 text-sm font-medium text-red-500 ring-1 ring-red-500/30 hover:bg-red-500/20"
+          className="w-full rounded-2xl border border-border-2 bg-bg px-4 py-3 text-sm font-medium text-ink transition hover:bg-surface"
         >
           Sign out
         </button>
@@ -97,7 +94,7 @@ export function SettingsTab({ data }: { data: SettingsTabData }) {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl bg-bg/40 px-2 py-3">
+    <div className="rounded-2xl border border-border px-2 py-3">
       <div className="font-display text-xl font-semibold tabular-nums">{value}</div>
       <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted">
         {label}
@@ -111,7 +108,7 @@ function Row({ href, label, hint }: { href: string; label: string; hint: string 
     <li>
       <Link
         href={href}
-        className="flex items-center justify-between rounded-xl px-3 py-2 transition hover:bg-bg/40"
+        className="flex items-center justify-between rounded-2xl border border-transparent px-3 py-2 transition hover:border-border hover:bg-surface"
       >
         <div>
           <div className="text-sm font-medium">{label}</div>

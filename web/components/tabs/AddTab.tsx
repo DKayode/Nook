@@ -47,10 +47,10 @@ export function AddTab({ data }: { data: AddTabData }) {
 
   return (
     <div className="animate-fade-in space-y-5">
-      <form onSubmit={submit} className="rounded-3xl bg-surface p-5 shadow-soft">
+      <form onSubmit={submit} className="rounded-2xl border border-border bg-bg p-5">
         <div className="flex items-stretch gap-2">
           <div
-            className="flex aspect-square w-14 shrink-0 items-center justify-center rounded-xl bg-bg text-2xl ring-1 ring-border"
+            className="flex aspect-square w-14 shrink-0 items-center justify-center rounded-2xl border border-border text-2xl"
             aria-hidden="true"
           >
             {icon}
@@ -64,7 +64,7 @@ export function AddTab({ data }: { data: AddTabData }) {
               onChange={(e) => setName(e.target.value)}
               placeholder="Childcare, Pets, Investments…"
               maxLength={40}
-              className="mt-1 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-ink"
+              className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-base text-ink outline-none focus:border-ink"
             />
           </label>
         </div>
@@ -76,24 +76,24 @@ export function AddTab({ data }: { data: AddTabData }) {
         <button
           type="submit"
           disabled={busy || !name.trim()}
-          className="mt-4 w-full rounded-xl bg-ink px-4 py-3 font-semibold text-bg transition hover:opacity-90 disabled:opacity-60"
+          className="mt-4 w-full rounded-2xl border border-ink bg-ink px-4 py-3 font-semibold text-bg transition hover:opacity-90 disabled:opacity-60"
         >
           {busy ? "Adding…" : "Add category"}
         </button>
-        {err && <div className="mt-2 text-sm text-red-500">{err}</div>}
+        {err && <div className="mt-2 text-sm text-ink">{err}</div>}
         {justAdded && (
-          <div className="mt-2 text-sm text-emerald-600 dark:text-emerald-400">
+          <div className="mt-2 text-sm text-accent">
             Added <span className="font-medium">{justAdded}</span>. Available everywhere now.
           </div>
         )}
       </form>
 
-      <section className="rounded-3xl bg-surface p-5 shadow-soft">
+      <section className="rounded-2xl border border-border bg-bg p-5">
         <div className="flex items-center justify-between">
           <div className="text-xs uppercase tracking-wide text-muted">
             Your custom categories
           </div>
-          <Link href="/categories" className="text-xs font-medium text-ink hover:underline">
+          <Link href="/categories" className="text-xs font-medium text-ink underline-offset-2 hover:underline">
             Manage →
           </Link>
         </div>
@@ -106,7 +106,7 @@ export function AddTab({ data }: { data: AddTabData }) {
             {data.customCategories.map((c) => (
               <li
                 key={c.id}
-                className="flex items-center gap-1.5 rounded-full bg-bg px-3 py-1 text-xs font-medium text-ink ring-1 ring-border"
+                className="flex items-center gap-1.5 rounded-full border border-border bg-bg px-3 py-1 text-xs font-medium text-ink"
               >
                 <span aria-hidden="true">{c.icon ?? DEFAULT_CATEGORY_ICON}</span>
                 <span>{c.name}</span>
@@ -124,7 +124,7 @@ export function AddTab({ data }: { data: AddTabData }) {
           {data.builtInCategories.map((c) => (
             <li
               key={c}
-              className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs text-muted ring-1 ring-border"
+              className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted"
             >
               <span aria-hidden="true">{BUILTIN_CATEGORY_ICONS[c] ?? DEFAULT_CATEGORY_ICON}</span>
               <span>{c}</span>
@@ -135,7 +135,7 @@ export function AddTab({ data }: { data: AddTabData }) {
 
       <Link
         href="/import"
-        className="block rounded-3xl border border-dashed border-border bg-surface px-5 py-4 text-center text-sm font-medium text-ink transition hover:bg-surface-2"
+        className="block rounded-2xl border border-dashed border-border bg-bg px-5 py-4 text-center text-sm font-medium text-ink transition hover:bg-surface"
       >
         + Import transactions from CSV
       </Link>

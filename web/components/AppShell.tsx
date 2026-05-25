@@ -8,8 +8,9 @@ import { AnalyticsTab, type AnalyticsTabData } from "@/components/tabs/Analytics
 import { AddTab, type AddTabData } from "@/components/tabs/AddTab";
 import { BudgetTab, type BudgetTabData } from "@/components/tabs/BudgetTab";
 import { SettingsTab, type SettingsTabData } from "@/components/tabs/SettingsTab";
+import type { TabKey } from "@/lib/tabs";
 
-export type TabKey = "home" | "analytics" | "add" | "budget" | "settings";
+export type { TabKey };
 
 export type ShellData = {
   userName: string | null;

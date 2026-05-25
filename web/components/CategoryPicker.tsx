@@ -40,10 +40,8 @@ export function CategoryPicker({ transactionId, current, options }: Props) {
       onChange={(e) => update(e.target.value)}
       disabled={busy}
       onClick={(e) => e.stopPropagation()}
-      className={`max-w-[140px] truncate rounded-md border bg-bg px-2 py-1 text-xs outline-none focus:border-accent ${
-        isUncategorized
-          ? "border-amber-500/40 text-amber-300"
-          : "border-white/10 text-muted"
+      className={`max-w-[140px] truncate rounded-2xl border bg-bg px-2 py-1 text-xs outline-none focus:border-ink ${
+        isUncategorized ? "border-ink text-ink" : "border-border text-muted"
       }`}
     >
       {options.map((opt) => (

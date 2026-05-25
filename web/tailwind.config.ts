@@ -1,12 +1,9 @@
 import type { Config } from "tailwindcss";
 
-// Design tokens — monochrome (Black / White)
-//
-// Semantic tokens (bg / surface / ink / muted / accent / border) are CSS variables defined in
-// globals.css and flipped by the `.dark` class on <html>. The `mono` scale is the raw
-// black→white ramp components can reach into when an explicit shade is needed.
-// Brand aliases (forest / sand / gold) are preserved and mapped onto the mono ramp so the
-// rest of the app keeps working without a sweeping rename.
+// Ultra-clean monochrome system. One theme only — pure black bg + white ink.
+// Cards are flat with a 1px #262626/#333 border instead of drop shadows.
+// `accent` is reserved for chart data and balance highlights (emerald #10B981);
+// nothing else should reach for it.
 
 export default {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
@@ -14,7 +11,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Semantic — auto-flip via CSS variables
         bg: "rgb(var(--bg) / <alpha-value>)",
         surface: "rgb(var(--surface) / <alpha-value>)",
         "surface-2": "rgb(var(--surface-2) / <alpha-value>)",
@@ -22,6 +18,7 @@ export default {
         muted: "rgb(var(--muted) / <alpha-value>)",
         accent: "rgb(var(--accent) / <alpha-value>)",
         border: "rgb(var(--border) / <alpha-value>)",
+        "border-2": "rgb(var(--border-2) / <alpha-value>)",
 
         mono: {
           DEFAULT: "#000000",
@@ -32,53 +29,38 @@ export default {
           400: "#a3a3a3",
           500: "#737373",
           600: "#525252",
-          700: "#262626",
-          800: "#171717",
-          900: "#0a0a0a",
+          700: "#333333",
+          800: "#262626",
+          900: "#121212",
           950: "#000000",
         },
 
-        // Brand aliases mapped onto the monochrome ramp so existing class names still resolve.
+        // Backwards-compatibility aliases — old class names still resolve onto the mono ramp.
         forest: {
-          DEFAULT: "#0a0a0a",
-          50: "#f5f5f5",
-          100: "#e5e5e5",
-          200: "#d4d4d4",
-          300: "#a3a3a3",
-          400: "#737373",
-          500: "#525252",
-          600: "#262626",
-          700: "#171717",
-          800: "#0a0a0a",
-          900: "#000000",
-          950: "#000000",
+          DEFAULT: "#000000",
+          50: "#f5f5f5", 100: "#e5e5e5", 200: "#d4d4d4", 300: "#a3a3a3",
+          400: "#737373", 500: "#525252", 600: "#333333", 700: "#262626",
+          800: "#121212", 900: "#000000", 950: "#000000",
         },
         sand: {
           DEFAULT: "#ffffff",
-          50: "#ffffff",
-          100: "#f5f5f5",
-          200: "#e5e5e5",
-          300: "#d4d4d4",
-          400: "#a3a3a3",
-          500: "#737373",
+          50: "#ffffff", 100: "#f5f5f5", 200: "#e5e5e5", 300: "#d4d4d4",
+          400: "#a3a3a3", 500: "#737373",
         },
         gold: {
-          DEFAULT: "#0a0a0a",
-          50: "#f5f5f5",
-          100: "#e5e5e5",
-          200: "#d4d4d4",
-          300: "#a3a3a3",
-          400: "#262626",
-          500: "#171717",
-          600: "#0a0a0a",
+          DEFAULT: "#ffffff",
+          50: "#f5f5f5", 100: "#e5e5e5", 200: "#d4d4d4", 300: "#a3a3a3",
+          400: "#ffffff", 500: "#ffffff", 600: "#ffffff",
         },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
         display: ["var(--font-comfortaa)", "system-ui", "sans-serif"],
       },
-      boxShadow: {
-        soft: "0 1px 2px 0 rgba(0,0,0,0.04), 0 4px 16px -2px rgba(0,0,0,0.08)",
+      borderRadius: {
+        // App-wide geometric standard: 16px (lg/xl/2xl) for cards, 20px for hero containers.
+        "2xl": "16px",
+        "3xl": "20px",
       },
       animation: {
         "fade-in": "fadeIn 200ms ease-out both",

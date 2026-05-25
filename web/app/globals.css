@@ -3,32 +3,26 @@
 @tailwind utilities;
 
 @layer base {
-  /* Monochrome palette. Light = white bg / black ink. Dark = black bg / white ink.
-     Accent is the inverse of ink so primary actions read as solid black/white blocks. */
-  :root {
-    --bg: 255 255 255;
-    --surface: 245 245 245;
-    --surface-2: 229 229 229;
-    --ink: 10 10 10;
-    --muted: 115 115 115;
-    --accent: 10 10 10;
-    --border: 229 229 229;
-    color-scheme: light;
-  }
-  .dark {
-    --bg: 10 10 10;
-    --surface: 23 23 23;
+  /* Ultra-clean monochrome. One theme only — pure black bg, pure white ink.
+     Surfaces step through #121212 → #262626. Borders carry the structure: cards
+     are flat with a 1px #262626/#333 outline rather than drop shadows. */
+  :root, .dark {
+    --bg: 0 0 0;
+    --surface: 18 18 18;
     --surface-2: 38 38 38;
-    --ink: 245 245 245;
+    --ink: 255 255 255;
     --muted: 163 163 163;
-    --accent: 245 245 245;
+    --accent: 16 185 129;      /* Emerald #10B981 — reserved for charts and balance highlights */
     --border: 38 38 38;
+    --border-2: 51 51 51;
     color-scheme: dark;
   }
 }
 
 html, body { height: 100%; }
 body {
+  background: rgb(var(--bg));
+  color: rgb(var(--ink));
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: contain;
 }

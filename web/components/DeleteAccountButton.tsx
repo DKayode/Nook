@@ -16,7 +16,7 @@ export function DeleteAccountButton({ id, name }: { id: string; name: string }) 
         router.refresh();
       }}
       disabled={busy}
-      className="text-xs text-muted hover:text-red-300"
+      className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted hover:bg-surface hover:text-ink"
     >
       Remove
     </button>

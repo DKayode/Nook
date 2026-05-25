@@ -1,14 +1,21 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { TABS, type TabKey } from "@/lib/tabs";
 
-export function MobileBottomNav({
-  active,
-  onChange,
-}: {
-  active: TabKey;
-  onChange: (k: TabKey) => void;
-}) {
+// Sub-pages (/accounts, /categories, /import, /devices) render this Link-driven copy of
+// the bottom nav so the bar looks identical no matter where the user is. Each tab
+// navigates back to "/?tab=<key>" so the AppShell on home opens straight to that view.
+// `activeOverride` lets a sub-page mark which tab is "current" — e.g. /accounts feels like
+// a Settings sub-page.
+
+export function MobileBottomNavLinks({ activeOverride }: { activeOverride?: TabKey }) {
+  const pathname = usePathname();
+  const active: TabKey | null =
+    activeOverride ??
+    (pathname === "/" || pathname?.startsWith("/dashboard") ? "home" : null);
+
   return (
     <nav
       aria-label="Primary"
@@ -21,9 +28,8 @@ export function MobileBottomNav({
           const isAddTab = t.key === "add";
           return (
             <li key={t.key}>
-              <button
-                type="button"
-                onClick={() => onChange(t.key)}
+              <Link
+                href={`/?tab=${t.key}`}
                 aria-current={isActive ? "page" : undefined}
                 aria-label={t.label}
                 title={t.label}
@@ -51,7 +57,7 @@ export function MobileBottomNav({
                     {t.label}
                   </span>
                 )}
-              </button>
+              </Link>
             </li>
           );
         })}

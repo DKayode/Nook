@@ -19,38 +19,38 @@ export default async function DevicesPage() {
   });
 
   return (
-    <main className="px-5 pt-12 lg:pt-0">
-      <div className="flex items-center gap-3">
-        <Link href="/settings" className="text-sm text-muted hover:text-white">
+    <main className="animate-fade-in space-y-5">
+      <header>
+        <Link href="/?tab=settings" className="text-xs text-muted hover:text-ink">
           ← Settings
         </Link>
-      </div>
-      <h1 className="mt-2 text-2xl font-semibold">Devices</h1>
-      <p className="mt-1 text-sm text-muted">
-        Each row is a passkey on one device. Enroll the device you&apos;re currently on, or remove
-        passkeys you no longer trust.
-      </p>
+        <h1 className="mt-2 font-display text-2xl font-semibold">Devices</h1>
+        <p className="mt-1 text-sm text-muted">
+          Each row is a passkey on one device. Enroll the device you&apos;re currently on, or remove
+          passkeys you no longer trust.
+        </p>
+      </header>
 
-      <div className="mt-6">
+      <section className="rounded-2xl border border-border bg-bg p-5">
         <AddPasskeyButton label="Enroll this device" />
-      </div>
+      </section>
 
-      <ul className="mt-8 space-y-2">
+      <ul className="space-y-2">
         {authenticators.length === 0 && (
-          <li className="rounded-xl bg-surface p-4 text-sm text-muted">
+          <li className="rounded-2xl border border-border bg-bg p-4 text-sm text-muted">
             No passkeys yet. Enroll one above so you can sign in with Face ID / Touch ID next time.
           </li>
         )}
         {authenticators.map((a) => (
           <li
             key={a.credentialID}
-            className="flex items-center justify-between rounded-xl bg-surface px-4 py-3"
+            className="flex items-center justify-between rounded-2xl border border-border bg-bg px-4 py-3"
           >
             <div>
               <div className="text-sm">
                 {labelFor(a)}
                 {a.credentialBackedUp && (
-                  <span className="ml-2 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] uppercase tracking-wide text-emerald-300">
+                  <span className="ml-2 rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
                     synced
                   </span>
                 )}

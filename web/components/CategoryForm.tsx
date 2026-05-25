@@ -37,7 +37,7 @@ export function CategoryForm() {
     <form onSubmit={submit} className="space-y-4">
       <div className="flex items-stretch gap-2">
         <div
-          className="flex aspect-square w-14 shrink-0 items-center justify-center rounded-xl bg-surface text-2xl ring-1 ring-border"
+          className="flex aspect-square w-14 shrink-0 items-center justify-center rounded-2xl border border-border text-2xl"
           aria-hidden="true"
         >
           {icon}
@@ -47,18 +47,18 @@ export function CategoryForm() {
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Childcare, Pets, Investments"
           maxLength={40}
-          className="w-full rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-ink"
+          className="w-full rounded-2xl border border-border bg-bg px-4 py-3 text-ink outline-none focus:border-ink"
         />
       </div>
       <CategoryIconPicker value={icon} onChange={setIcon} />
       <button
         type="submit"
         disabled={busy || !name.trim()}
-        className="w-full rounded-xl bg-ink px-4 py-3 font-medium text-bg disabled:opacity-60"
+        className="w-full rounded-2xl border border-ink bg-ink px-4 py-3 font-medium text-bg disabled:opacity-60"
       >
         {busy ? "…" : "Add category"}
       </button>
-      {err && <div className="text-sm text-red-500">{err}</div>}
+      {err && <div className="text-sm text-ink">{err}</div>}
     </form>
   );
 }
