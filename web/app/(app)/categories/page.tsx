@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { CategoryForm } from "@/components/CategoryForm";
-import { DeleteCategoryButton } from "@/components/DeleteCategoryButton";
+import { CategoryListItem } from "@/components/CategoryListItem";
 import {
   BUILTIN_CATEGORY_ICONS,
   DEFAULT_CATEGORY_ICON,
@@ -39,18 +39,7 @@ export default async function CategoriesPage() {
           <div className="mb-2 text-xs uppercase tracking-wide text-muted">Yours</div>
           <ul className="space-y-2">
             {custom.map((c) => (
-              <li
-                key={c.id}
-                className="flex items-center justify-between rounded-2xl border border-border bg-bg px-4 py-3"
-              >
-                <span className="flex items-center gap-2">
-                  <span className="text-lg" aria-hidden="true">
-                    {c.icon ?? DEFAULT_CATEGORY_ICON}
-                  </span>
-                  <span>{c.name}</span>
-                </span>
-                <DeleteCategoryButton id={c.id} />
-              </li>
+              <CategoryListItem key={c.id} id={c.id} name={c.name} icon={c.icon} />
             ))}
           </ul>
         </section>
